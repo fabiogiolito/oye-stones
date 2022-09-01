@@ -129,7 +129,13 @@
     return { r, cx, cy, fill };
   }
 
+  function refresh() {
+    location.reload();
+  }
+
 </script>
+
+<svelte:body on:click={refresh} />
 
 <div class="options hidden">
   <p>
@@ -198,10 +204,11 @@
   }
 
   .canvas {
-    overflow: hidden;
     border-radius: 1rem;
+    overflow: hidden;
     width: 480px;
-    height: 640px;
+    max-width: 100vw;
+    aspect-ratio: 0.75;
     position: relative;
     background: var(--stones-image) no-repeat center, linear-gradient(to bottom, var(--bg-gradient-start), var(--bg-gradient-end));
     background-size: contain;
@@ -209,8 +216,7 @@
 
   svg {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     mix-blend-mode: color;
   }
 
