@@ -135,9 +135,7 @@
 
 </script>
 
-<svelte:body on:click={refresh} />
-
-<div class="options hidden">
+<div class="options">
   <p>
     <label>
       <input type="checkbox" bind:checked={colorsFromPalette} />
@@ -156,39 +154,39 @@
 
 {#key colorsFromPalette}
 
-<div class="canvas" style={`
-  --bg-gradient-start: ${randomColor()};
-  --bg-gradient-end: ${randomColor()};
-  --stones-image: url(${stones.image});
-`}>
+  <div class="canvas" on:click={refresh} style={`
+    --bg-gradient-start: ${randomColor()};
+    --bg-gradient-end: ${randomColor()};
+    --stones-image: url(${stones.image});
+  `}>
 
 
-  <!-- Stones mask definition -->
-  <svg viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <clipPath id="stonesMask">
+    <!-- Stones mask definition -->
+    <svg viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <clipPath id="stonesMask">
+        {#each stones.shapes as stone}
+          <path fill="white" d={stone} />
+        {/each}
+      </clipPath>
+    </svg>
+
+    <!-- Stones base colors -->
+    <svg viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg">
       {#each stones.shapes as stone}
-        <path fill="white" d={stone} />
+        <path fill={randomColor()} d={stone} />
       {/each}
-    </clipPath>
-  </svg>
+    </svg>
 
-  <!-- Stones base colors -->
-  <svg viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {#each stones.shapes as stone}
-      <path fill={randomColor()} d={stone} />
-    {/each}
-  </svg>
-
-  <!-- Fill tints -->
-  <svg class="tints" viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg"
-    style="--color-blur: {colorBlur}px;"
-  >
-    {#each [...Array(circlesCount)] as _}
-      <circle {...randomPosition()} opacity="0.5" mask="url(#stonesMask)" />
-    {/each}
-  </svg>
-  
-</div>
+    <!-- Fill tints -->
+    <svg class="tints" viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg"
+      style="--color-blur: {colorBlur}px;"
+    >
+      {#each [...Array(circlesCount)] as _}
+        <circle {...randomPosition()} opacity="0.5" mask="url(#stonesMask)" />
+      {/each}
+    </svg>
+    
+  </div>
 
 {/key}
 
