@@ -198,6 +198,7 @@
   }
 
   .canvas {
+    overflow: hidden;
     border-radius: 1rem;
     width: 480px;
     height: 640px;
