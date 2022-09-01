@@ -135,7 +135,7 @@
 
 </script>
 
-<div class="options">
+<div class="options hidden">
   <p>
     <label>
       <input type="checkbox" bind:checked={colorsFromPalette} />
