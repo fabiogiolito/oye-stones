@@ -96,7 +96,7 @@
   ];
 
   let colorsFromPalette = false;
-  let circlesCount = 10;
+  let circlesCount = 15;
   let colorBlur = 10;
 
   $: stones = randomStones();
@@ -118,7 +118,7 @@
 
     // Or return random color
     const hue = Math.floor( Math.random() * 360 );
-    return `hsl(${hue}, 80%, 80%)`;
+    return `hsl(${hue}, 50%, 80%)`;
   }
 
   function randomPosition() {
@@ -152,6 +152,8 @@
   </p>
 </div>
 
+<img src="/favicon.png" alt="oye" class="mb-10" />
+
 {#key colorsFromPalette}
 
   <div class="canvas" on:click={refresh} style={`
@@ -160,6 +162,7 @@
     --stones-image: url(${stones.image});
   `}>
 
+    <div class="canvas__shader" />
 
     <!-- Stones mask definition -->
     <svg viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -208,14 +211,23 @@
     max-width: 100vw;
     aspect-ratio: 0.75;
     position: relative;
-    background: var(--stones-image) no-repeat center, linear-gradient(to bottom, var(--bg-gradient-start), var(--bg-gradient-end));
+    background: linear-gradient(to bottom, var(--bg-gradient-start), var(--bg-gradient-end));
+  }
+
+  .canvas__shader {
+    position: absolute;
+    inset: 0;
+    background: var(--stones-image) no-repeat center;
     background-size: contain;
+    opacity: 1;
+    z-index: 1;
   }
 
   svg {
     position: absolute;
     inset: 0;
     mix-blend-mode: color;
+    z-index: 2;
   }
 
   /* Blur circles and apply mask */
@@ -225,21 +237,23 @@
   } 
 
   /* Grain */
-  .canvas:before {
+  .canvas:after {
     content: '';
     position: absolute;
     inset: 0;
     background: url("/grain.png");
+    z-index: 3;
   }
 
   /* Saturate colors */
-  .canvas:after {
+  .canvas:before {
     content: '';
     position: absolute;
     inset: 0;
     background-color: lime;
     mix-blend-mode: saturation;
     opacity: 0.5;
+    z-index: 10;
   }
 
 </style>
