@@ -62,7 +62,7 @@
 
   let primaryOrbCount = 1;
   let secondaryOrbCount = 1;
-  let orbBlur = 20;
+  let orbBlur = 25;
 
   $: primaryOrbs = colorsArray(currentEmotion.color, primaryOrbCount);
   $: secondaryOrbs = colorsArray(emotions[currentEmotion.sibling].color, secondaryOrbCount, 60, 70);
@@ -87,7 +87,7 @@
     const size = Math.random() * (60 - 20) + 20;
     const x = Math.random() * (100 - size);
     const y = Math.random() * (100 - size);
-    const duration = Math.random() * (10 - 4) + 4;
+    const duration = Math.random() * (15 - 10) + 10;
     const direction = Math.round(Math.random()) ? 'alternate' : 'alternate-reverse';
     return { size, x, y, duration, direction }
   }
@@ -247,10 +247,10 @@
 
   @keyframes movement {
     from {
-      transform: translateY(-100px);
+      transform: translateY(-100%);
     }
     to {
-      transform: translateY(100px);
+      transform: translateY(100%);
     }
   }
 
