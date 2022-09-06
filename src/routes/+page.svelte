@@ -84,9 +84,9 @@
   }
 
   function randomOrb() {
-    const size = Math.random() * (250 - 150) + 150;
-    const x = Math.random() * (480 - size);
-    const y = Math.random() * (640 - size);
+    const size = Math.random() * (60 - 20) + 20;
+    const x = Math.random() * (100 - size);
+    const y = Math.random() * (100 - size);
     const duration = Math.random() * (10 - 4) + 4;
     const direction = Math.round(Math.random()) ? 'alternate' : 'alternate-reverse';
     return { size, x, y, duration, direction }
@@ -113,9 +113,9 @@
           {#each secondaryOrbs as color}
             {@const orb = randomOrb()}
             <div class="orb" style="
-              --size: {orb.size}px;
-              --x: {orb.x}px;
-              --y: {orb.y}px;
+              --size: {orb.size}%;
+              --x: {orb.x}%;
+              --y: {orb.y}%;
               --duration: {orb.duration}s;
               --direction: {orb.direction};
               --color: {color};
@@ -126,9 +126,9 @@
           {#each primaryOrbs as color}
             {@const orb = randomOrb()}
             <div class="orb" style="
-              --size: {orb.size}px;
-              --x: {orb.x}px;
-              --y: {orb.y}px;
+              --size: {orb.size}%;
+              --x: {orb.x}%;
+              --y: {orb.y}%;
               --duration: {orb.duration}s;
               --direction: {orb.direction};
               --color: {color};
