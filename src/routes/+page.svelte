@@ -57,7 +57,7 @@
     }, 
   };
 
-  let selectedEmotion = 'balance';
+  let selectedEmotion = 'passion';
   $: currentEmotion = emotions[selectedEmotion];
 
   let primaryOrbCount = 1;
@@ -87,7 +87,7 @@
     const size = Math.random() * (60 - 20) + 20;
     const x = Math.random() * (100 - size);
     const y = Math.random() * (100 - size);
-    const duration = Math.random() * (15 - 10) + 10;
+    const duration = Math.random() * (12 - 6) + 6;
     const direction = Math.round(Math.random()) ? 'alternate' : 'alternate-reverse';
     return { size, x, y, duration, direction }
   }
