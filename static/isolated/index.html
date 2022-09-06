@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibra</title>
+
+  <style>
+  html, body, .canvas {
+    height: 100%;
+  }
+
+  body, .canvas {
+    overflow: hidden;
+    margin: 0;
+    background: linear-gradient(to bottom, var(--bgStart), var(--bgEnd));
+  }
+
+  .stone-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(8px 8px 40px var(--baseColor));
+    mix-blend-mode: multiply;
+  }
+
+  .stone {
+    background: var(--baseColor);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    mask-image: var(--mask);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+  }
+
+  .orb {
+    filter: blur(var(--blur));
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: var(--size);
+    aspect-ratio: 1;
+    background: var(--color);
+    border-radius: 100%;
+    animation: movement var(--duration) ease-in-out infinite var(--direction);
+    opacity: 0.5;
+  }
+
+  .shader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    mix-blend-mode: overlay;
+    object-fit: contain;
+  }
+
+  .grain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("assets/grain.png");
+    border-radius: inherit;
+  }
+
+  @keyframes movement {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+
+  </style>
+
+</head>
+<body>
+
+  <div class="stone-container">
+    <div class="stone"></div>
+  </div>
+
+  <img class="shader" alt="shader" />
+  <div class="grain" />
+
+  <script>
+
+    const emotions = {
+      anger: {
+        name: 'anger',
+        color: [360, 57, 60],
+        sibling: 'balance',
+      },
+      balance: {
+        name: 'balance',
+        color: [277, 48, 83],
+        sibling: 'anger',
+      },
+      fear: {
+        name: 'fear',
+        color: [209, 65, 71],
+        sibling: 'passion',
+      },
+      passion: {
+        name: 'passion',
+        color: [13, 100, 70],
+        sibling: 'fear',
+      },
+      shame: {
+        name: 'shame',
+        color: [156, 42, 79],
+        sibling: 'tranquility',
+      },
+      tranquility: {
+        name: 'tranquility',
+        color: [38, 61, 71],
+        sibling: 'shame',
+      },
+      sadness: {
+        name: 'sadness',
+        color: [195, 61, 72],
+        sibling: 'happiness',
+      },
+      happiness: {
+        name: 'happiness',
+        color: [40, 100, 61],
+        sibling: 'sadness',
+      },
+      apathy: {
+        name: 'apathy',
+        color: [183, 90, 75],
+        sibling: 'vitality',
+      },
+      vitality: {
+        name: 'vitality',
+        color: [48, 100, 73],
+        sibling: 'apathy',
+      },
+    };
+
+    // Functions
+    function colorsArray(baseColor, count, min = 20, max = 90) {
+      return [...Array(count)].map((_, index) => {
+        const lightness = count == 1 ? 40 : (((max - min) / (count - 1)) * index) + min;
+        return `hsl(${baseColor[0]}, ${baseColor[1]}%, ${Math.round(lightness)}%)`
+      })
+    }
+
+    function randomizeLightness(hsl = primaryColor, rangeStart = 10, rangeEnd = 90) {
+      const lightness = Math.random() * (rangeEnd - rangeStart) + rangeStart;
+      return `hsl(${hsl[0]}, ${hsl[1]}%, ${Math.round(lightness)}%)`;
+    }
+
+    function createOrb(color) {
+      const size = Math.random() * (60 - 20) + 20;
+      const x = Math.random() * (100 - size);
+      const y = Math.random() * (100 - size);
+      const duration = Math.random() * (12 - 6) + 6;
+      const direction = Math.round(Math.random()) ? 'alternate' : 'alternate-reverse';
+
+      const orb = document.createElement("div");
+      orb.className = 'orb';
+      orb.style.setProperty("--size", `${size}%`);
+      orb.style.setProperty("--x", `${x}%`);
+      orb.style.setProperty("--y", `${y}%`);
+      orb.style.setProperty("--duration", `${duration}s`);
+      orb.style.setProperty("--direction", direction);
+      orb.style.setProperty("--color", color);
+      
+      return orb;
+    }
+
+
+    // Params
+    const params = (new URL(document.location)).searchParams;
+
+    const emotion = params.get('emotion') || 'sadness';
+    const primaryOrbsCount = params.get('primaryOrbsCount') || 2;
+    const secondaryOrbsCount = params.get('secondaryOrbsCount') || 2;
+    const orbsBlur = params.get('orbsBlur') || 20;
+
+    const currentEmotion = emotions[emotion];
+
+    // Create orbs array
+    const primaryOrbs = colorsArray(currentEmotion.color, primaryOrbsCount);
+    const secondaryOrbs = colorsArray(emotions[currentEmotion.sibling].color, secondaryOrbsCount, 60, 70);
+
+
+    // Set css variables
+    document.body.style.setProperty("--bgStart", randomizeLightness(currentEmotion.color, 90, 95));
+    document.body.style.setProperty("--bgEnd", randomizeLightness(currentEmotion.color, 70, 90));
+    document.body.style.setProperty("--baseColor", `hsl(${currentEmotion.color[0]}, ${currentEmotion.color[1]}%, ${currentEmotion.color[2]}%)`);
+    document.body.style.setProperty("--blur", `${orbsBlur}px`);
+    document.body.style.setProperty("--mask", `url("assets/mask_${currentEmotion.name}.svg")`);
+
+    // Stone container
+    const stone = document.getElementsByClassName("stone")[0];
+
+    // Loop secondary orbs
+    for (let index = 0; index < secondaryOrbs.length; index++) {
+      const orb = createOrb(secondaryOrbs[index]);
+      stone.appendChild(orb);
+    }
+
+    // Loop primary orbs
+    for (let index = 0; index < primaryOrbs.length; index++) {
+      const orb = createOrb(primaryOrbs[index]);
+      stone.appendChild(orb);
+    }    
+
+    // Shader image
+    const shader = document.getElementsByClassName("shader")[0];
+    shader.setAttribute("src", `assets/shader_${currentEmotion.name}.png`)
+
+  </script>
+</body>
+</html>

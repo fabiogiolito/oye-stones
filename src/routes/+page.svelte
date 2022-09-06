@@ -62,7 +62,7 @@
 
   let primaryOrbCount = 1;
   let secondaryOrbCount = 1;
-  let orbBlur = 25;
+  let orbsBlur = 25;
 
   $: primaryOrbs = colorsArray(currentEmotion.color, primaryOrbCount);
   $: secondaryOrbs = colorsArray(emotions[currentEmotion.sibling].color, secondaryOrbCount, 60, 70);
@@ -102,7 +102,7 @@
       --bgStart: {randomizeLightness(currentEmotion.color, 90, 95)};
       --bgEnd: {randomizeLightness(currentEmotion.color, 70, 90)};
       --baseColor: {`hsl(${currentEmotion.color[0]}, ${currentEmotion.color[1]}%, ${currentEmotion.color[2]}%)`};
-      --blur: {orbBlur}px;
+      --blur: {orbsBlur}px;
       --mask: {`url("/v3/mask_${currentEmotion.name}.svg")`};
     ">
 
@@ -166,8 +166,8 @@
     </div>
     <div class="flex space-x-2 px-4 pb-2">
       <p class="w-24">Orbs blur</p>
-      <input class="flex-1 min-w-[1px]" type="range" bind:value={orbBlur} min="0" max="40">
-      <span>{orbBlur}</span>
+      <input class="flex-1 min-w-[1px]" type="range" bind:value={orbsBlur} min="0" max="40">
+      <span>{orbsBlur}</span>
     </div>
   </div>
 
