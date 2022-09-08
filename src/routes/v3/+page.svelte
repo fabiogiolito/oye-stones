@@ -57,17 +57,15 @@
     }, 
   };
 
+  let selectedEmotion = 'passion';
+  $: currentEmotion = emotions[selectedEmotion];
+
+  let primaryOrbCount = 1;
+  let secondaryOrbCount = 1;
   let orbsBlur = 25;
 
-  let stonesCount = 3;
-
-  $: stones = [...Array(stonesCount)].map( (i, index) => {
-    return {
-      emotion: Object.keys(emotions)[index],
-      primaryOrbCount: Math.round(Math.random() * (4 - 2) + 2),
-      secondaryOrbCount: Math.round(Math.random() * (4 - 2) + 2),
-    }
-  });
+  $: primaryOrbs = colorsArray(currentEmotion.color, primaryOrbCount);
+  $: secondaryOrbs = colorsArray(emotions[currentEmotion.sibling].color, secondaryOrbCount, 60, 70);
 
 
   // ===========================
@@ -96,70 +94,108 @@
 
 </script>
 
-<input type="range" bind:value={stonesCount} min="2" max="5" class="block my-10 mx-auto" />
+<div class="mx-auto px-2 max-w-[480px]">
+  
+  <div class="canvas-container">
 
-
-<div class="canvas" style="
-  --bgStart: {randomizeLightness(emotions[stones[stones.length - 1].emotion].color, 90, 95)};
-  --bgEnd: {randomizeLightness(emotions[stones[stones.length - 1].emotion].color, 70, 90)};
-">
-
-  {#each stones as stone, index}
-    {@const primaryOrbs = colorsArray(emotions[stone.emotion].color, stone.primaryOrbCount)}
-    {@const secondaryOrbs = colorsArray(emotions[emotions[stone.emotion].sibling].color, stone.secondaryOrbCount, 60, 70)}
-
-    <div class="stone-container"
-      style="
-        --blur: {orbsBlur}px;
-        --baseColor: {`hsl(${emotions[stone.emotion].color[0]}, ${emotions[stone.emotion].color[1]}%, ${emotions[stone.emotion].color[2]}%)`};
-        --mask: {`url("/v4/mask_${stones.length}_${index + 1}.svg")`};
+    <div class="canvas" style="
+      --bgStart: {randomizeLightness(currentEmotion.color, 90, 95)};
+      --bgEnd: {randomizeLightness(currentEmotion.color, 70, 90)};
+      --baseColor: {`hsl(${currentEmotion.color[0]}, ${currentEmotion.color[1]}%, ${currentEmotion.color[2]}%)`};
+      --blur: {orbsBlur}px;
+      --mask: {`url("/v3/mask_${currentEmotion.name}.svg")`};
     ">
-      <div class="stone">
 
-        <!-- Secondary colors -->
-        {#each secondaryOrbs as color}
-          {@const orb = randomOrb()}
-          <div class="orb" style="
-            --size: {orb.size}%;
-            --x: {orb.x}%;
-            --y: {orb.y}%;
-            --duration: {orb.duration}s;
-            --direction: {orb.direction};
-            --color: {color};
-          " />
-        {/each}
+      <div class="stone-container">
+        <div class="stone">
+          
+          <!-- Secondary colors -->
+          {#each secondaryOrbs as color}
+            {@const orb = randomOrb()}
+            <div class="orb" style="
+              --size: {orb.size}%;
+              --x: {orb.x}%;
+              --y: {orb.y}%;
+              --duration: {orb.duration}s;
+              --direction: {orb.direction};
+              --color: {color};
+            " />
+          {/each}
 
-        <!-- Primary colors -->
-        {#each primaryOrbs as color}
-          {@const orb = randomOrb()}
-          <div class="orb" style="
-            --size: {orb.size}%;
-            --x: {orb.x}%;
-            --y: {orb.y}%;
-            --duration: {orb.duration}s;
-            --direction: {orb.direction};
-            --color: {color};
-          " />
-        {/each}
+          <!-- Primary colors -->
+          {#each primaryOrbs as color}
+            {@const orb = randomOrb()}
+            <div class="orb" style="
+              --size: {orb.size}%;
+              --x: {orb.x}%;
+              --y: {orb.y}%;
+              --duration: {orb.duration}s;
+              --direction: {orb.direction};
+              --color: {color};
+            " />
+          {/each}
 
+        </div>
       </div>
+
+      <img src="/v3/shader_{currentEmotion.name}.png" class="shader" alt="shader" />
+
+      <div class="grain" />
+
     </div>
-  {/each}
+  </div> 
 
-  <img src="/v4/shader_{stones.length}.png" class="shader" alt="shader" />
-
-  <div class="grain" />
+  <div class="w-[480px] max-w-full mx-auto my-4 py-2 text-xs border border-black border-opacity-10 rounded-lg">
+    <div class="flex space-x-2 px-4 pb-2 pt-2">
+      <p class="w-24">Emotion</p>
+      <select bind:value={selectedEmotion}>
+        {#each Object.keys(emotions) as emotion}
+          <option value={emotion}>{emotions[emotion].name}</option>
+        {/each}
+      </select>
+    </div>
+    <div class="flex space-x-2 px-4 pb-2">
+      <p class="w-24">Primary Orbs</p>
+      <input class="flex-1 min-w-[1px]" type="range" bind:value={primaryOrbCount} min="0" max="20">
+      <span>{primaryOrbCount}</span>
+    </div>
+    <div class="flex space-x-2 px-4 pb-2">
+      <p class="w-24">Secondary Orbs</p>
+      <input class="flex-1 min-w-[1px]" type="range" bind:value={secondaryOrbCount} min="0" max="20">
+      <span>{secondaryOrbCount}</span>
+    </div>
+    <div class="flex space-x-2 px-4 pb-2">
+      <p class="w-24">Orbs blur</p>
+      <input class="flex-1 min-w-[1px]" type="range" bind:value={orbsBlur} min="0" max="40">
+      <span>{orbsBlur}</span>
+    </div>
+  </div>
 
 </div>
 
 <style>
 
+  .canvas-container {
+    overflow: hidden;
+  }
+
   .canvas {
     width: 100%;
-    max-width: 480px;
     aspect-ratio: 1;
+    transform: scale(var(--scale));
     transform-origin: top left;
     background: linear-gradient(to bottom, var(--bgStart), var(--bgEnd));
+  }
+
+  .shader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    mix-blend-mode: overlay;
+    object-fit: contain;
   }
 
   .stone-container {
@@ -183,17 +219,6 @@
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
-  }
-
-  .shader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    mix-blend-mode: overlay;
-    object-fit: contain;
   }
 
   .orb {

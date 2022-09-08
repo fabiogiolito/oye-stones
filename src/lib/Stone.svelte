@@ -57,17 +57,18 @@
     }, 
   };
 
-  let orbsBlur = 25;
+  export let selectedEmotion = 'passion';
+  $: currentEmotion = emotions[selectedEmotion];
 
-  let stonesCount = 3;
+  export let primaryOrbCount = 1;
+  export let secondaryOrbCount = 1;
+  export let orbsBlur = 25;
 
-  $: stones = [...Array(stonesCount)].map( (i, index) => {
-    return {
-      emotion: Object.keys(emotions)[index],
-      primaryOrbCount: Math.round(Math.random() * (4 - 2) + 2),
-      secondaryOrbCount: Math.round(Math.random() * (4 - 2) + 2),
-    }
-  });
+  let className = "";
+  export { className as class };
+
+  $: primaryOrbs = colorsArray(currentEmotion.color, primaryOrbCount);
+  $: secondaryOrbs = colorsArray(emotions[currentEmotion.sibling].color, secondaryOrbCount, 60, 70);
 
 
   // ===========================
@@ -96,70 +97,73 @@
 
 </script>
 
-<input type="range" bind:value={stonesCount} min="2" max="5" class="block my-10 mx-auto" />
 
-
-<div class="canvas" style="
-  --bgStart: {randomizeLightness(emotions[stones[stones.length - 1].emotion].color, 90, 95)};
-  --bgEnd: {randomizeLightness(emotions[stones[stones.length - 1].emotion].color, 70, 90)};
+<div class="canvas {className}" style="
+  --baseColor: {`hsl(${currentEmotion.color[0]}, ${currentEmotion.color[1]}%, ${currentEmotion.color[2]}%)`};
+  --blur: {orbsBlur}px;
+  --mask: {`url("/v3/mask_${currentEmotion.name}.svg")`};
 ">
 
-  {#each stones as stone, index}
-    {@const primaryOrbs = colorsArray(emotions[stone.emotion].color, stone.primaryOrbCount)}
-    {@const secondaryOrbs = colorsArray(emotions[emotions[stone.emotion].sibling].color, stone.secondaryOrbCount, 60, 70)}
+  <div class="stone-container">
+    <div class="stone">
+      
+      <!-- Secondary colors -->
+      {#each secondaryOrbs as color}
+        {@const orb = randomOrb()}
+        <div class="orb" style="
+          --size: {orb.size}%;
+          --x: {orb.x}%;
+          --y: {orb.y}%;
+          --duration: {orb.duration}s;
+          --direction: {orb.direction};
+          --color: {color};
+        " />
+      {/each}
 
-    <div class="stone-container"
-      style="
-        --blur: {orbsBlur}px;
-        --baseColor: {`hsl(${emotions[stone.emotion].color[0]}, ${emotions[stone.emotion].color[1]}%, ${emotions[stone.emotion].color[2]}%)`};
-        --mask: {`url("/v4/mask_${stones.length}_${index + 1}.svg")`};
-    ">
-      <div class="stone">
+      <!-- Primary colors -->
+      {#each primaryOrbs as color}
+        {@const orb = randomOrb()}
+        <div class="orb" style="
+          --size: {orb.size}%;
+          --x: {orb.x}%;
+          --y: {orb.y}%;
+          --duration: {orb.duration}s;
+          --direction: {orb.direction};
+          --color: {color};
+        " />
+      {/each}
 
-        <!-- Secondary colors -->
-        {#each secondaryOrbs as color}
-          {@const orb = randomOrb()}
-          <div class="orb" style="
-            --size: {orb.size}%;
-            --x: {orb.x}%;
-            --y: {orb.y}%;
-            --duration: {orb.duration}s;
-            --direction: {orb.direction};
-            --color: {color};
-          " />
-        {/each}
-
-        <!-- Primary colors -->
-        {#each primaryOrbs as color}
-          {@const orb = randomOrb()}
-          <div class="orb" style="
-            --size: {orb.size}%;
-            --x: {orb.x}%;
-            --y: {orb.y}%;
-            --duration: {orb.duration}s;
-            --direction: {orb.direction};
-            --color: {color};
-          " />
-        {/each}
-
-      </div>
     </div>
-  {/each}
+  </div>
 
-  <img src="/v4/shader_{stones.length}.png" class="shader" alt="shader" />
-
-  <div class="grain" />
+  <img src="/v3/shader_{currentEmotion.name}.png" class="shader" alt="shader" />
 
 </div>
 
+
 <style>
+
+  .canvas-container {
+    overflow: hidden;
+  }
 
   .canvas {
     width: 100%;
-    max-width: 480px;
     aspect-ratio: 1;
+    transform: scale(var(--scale));
     transform-origin: top left;
     background: linear-gradient(to bottom, var(--bgStart), var(--bgEnd));
+  }
+
+  .shader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    mix-blend-mode: overlay;
+    object-fit: contain;
   }
 
   .stone-container {
@@ -183,17 +187,6 @@
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
-  }
-
-  .shader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    mix-blend-mode: overlay;
-    object-fit: contain;
   }
 
   .orb {
