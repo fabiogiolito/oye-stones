@@ -69,7 +69,7 @@
 
   let orbsBlur = 25;
 
-  let stonesCount = 3;
+  let stonesCount = 5;
   let stonesVariant = 1;
 
   $: stones = [...Array(stonesCount)].map( (i, index) => {
@@ -108,6 +108,7 @@
 </script>
 
 <input type="range" bind:value={stonesCount} min="2" max="5" class="block my-10 mx-auto" />
+<input type="range" bind:value={stonesVariant} min="1" max="4" class="block my-10 mx-auto" />
 
 
 <div class="canvas" style="
